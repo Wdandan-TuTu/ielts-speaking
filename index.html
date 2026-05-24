@@ -390,7 +390,7 @@ body {
 <!-- Top Nav -->
 <div class="top-nav">
   <h1>IELTS Speaking</h1>
-  <span class="badge" id="streakBadge">🔥 今日练习: 0</span>
+  <span class="badge" id="streakBadge">🔥 今日练习: 0 &nbsp;siu！！！</span>
 </div>
 
 <!-- Toast -->
@@ -704,7 +704,7 @@ function loadStats() {
   document.getElementById('statPracticed').textContent = practiceCount;
   document.getElementById('statMinutes').textContent = practiceMinutes;
   document.getElementById('statTopics').textContent = practicedTopicIds.size;
-  document.getElementById('streakBadge').textContent = '🔥 今日练习: ' + practiceCount;
+  document.getElementById('streakBadge').innerHTML = '🔥 今日练习: ' + practiceCount + ' &nbsp;siu！！！';
 }
 
 function saveStats() {
