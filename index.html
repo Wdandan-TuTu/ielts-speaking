@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>雅思口语练习助手</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #4F46E5;
+  --primary-light: #EEF2FF;
+  --success: #059669;
+  --warning: #D97706;
+  --danger: #DC2626;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #1E293B;
+  --text-secondary: #64748B;
+  --border: #E2E8F0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* Top Nav */
+.top-nav {
+  background: var(--primary);
+  color: #fff;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.2);
+}
+.top-nav h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+.top-nav .badge {
+  background: rgba(255,255,255,0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Page sections */
+.page { display: none; padding: 16px; }
+.page.active { display: block; }
+
+/* Bottom Tab Bar */
+.tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 12px;
+  z-index: 100;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
+}
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 12px;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-item.active { color: var(--primary); font-weight: 600; }
+.tab-item .icon { font-size: 22px; line-height: 1; }
+
+/* Cards */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 16px; font-weight: 700; }
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag-part1 { background: #DBEAFE; color: #1D4ED8; }
+.tag-part2 { background: #FEF3C7; color: #B45309; }
+.tag-part3 { background: #FCE7F3; color: #BE185D; }
+.tag-phrase { background: #D1FAE5; color: #047857; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:active { transform: scale(0.96); opacity: 0.9; }
+.btn-outline { background: var(--card); color: var(--primary); border: 2px solid var(--primary); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-block { width: 100%; justify-content: center; }
+
+/* Timer */
+.timer-display {
+  font-size: 64px;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+  color: var(--primary);
+  line-height: 1;
+}
+.timer-display.warning { color: var(--warning); animation: pulse 1s infinite; }
+.timer-display.danger { color: var(--danger); animation: pulse 0.5s infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.timer-label { text-align: center; font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+/* Topic card */
+.topic-en { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.topic-zh { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+.topic-prompts { font-size: 13px; color: var(--text-secondary); padding-left: 18px; }
+.topic-prompts li { margin-bottom: 4px; }
+
+/* Speech area */
+.speech-result {
+  background: #F1F5F9;
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-height: 60px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 12px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.speech-result.active { color: var(--text); border: 2px solid var(--primary); background: var(--primary-light); }
+
+.recording-indicator {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--danger);
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: recordingPulse 1.5s infinite;
+}
+@keyframes recordingPulse {
+  0% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); }
+  70% { box-shadow: 0 0 0 20px rgba(220,38,38,0); }
+  100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+}
+.recording-indicator .dot { color: #fff; font-size: 24px; }
+
+/* Phase cards */
+.phrase-card {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-left: 4px solid var(--primary);
+}
+.phrase-en { font-size: 15px; font-weight: 600; color: var(--text); }
+.phrase-zh { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Progress */
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+/* Stats row */
+.stats-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  flex: 1;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.stat-num { font-size: 28px; font-weight: 800; color: var(--primary); }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Tabs */
+.segmented {
+  display: flex;
+  background: #E2E8F0;
+  border-radius: 25px;
+  padding: 3px;
+  margin-bottom: 16px;
+}
+.segmented button {
+  flex: 1;
+  padding: 8px 16px;
+  border-radius: 25px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.segmented button.active { background: #fff; color: var(--text); box-shadow: var(--shadow); }
+
+/* Collapsible */
+.collapsible {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.collapsible-header {
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.collapsible-body { display: none; padding: 0 16px 16px; }
+.collapsible.open .collapsible-body { display: block; }
+.collapsible.open .arrow { transform: rotate(180deg); }
+.arrow { transition: transform 0.2s; font-size: 12px; color: var(--text-secondary); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1E293B;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* Empty state */
+.empty { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+.empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+/* Scroll area */
+.scroll-area {
+  max-height: 60vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Liaison cards */
+.liaison-card {
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.liaison-rule {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.liaison-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.liaison-normal {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: #DC2626;
+  text-decoration-thickness: 1px;
+  min-width: 80px;
+}
+.liaison-arrow { color: var(--success); font-weight: 700; font-size: 16px; }
+.liaison-linked {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--success);
+  letter-spacing: 0.5px;
+  min-width: 100px;
+}
+.liaison-zh { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.liaison-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 15px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.liaison-play:active { opacity: 0.7; }
+.liaison-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 16px 0 10px 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+</style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<div class="top-nav">
+  <h1>IELTS Speaking</h1>
+  <span class="badge" id="streakBadge">🔥 今日练习: 0</span>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ====== PAGE 0: 首页 ====== -->
+<div class="page active" id="page-home">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="statPracticed">0</div>
+      <div class="stat-label">已练习(次)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statMinutes">0</div>
+      <div class="stat-label">练习时长(分)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statTopics">0</div>
+      <div class="stat-label">覆盖话题</div>
+    </div>
+  </div>
+
+  <div class="card" style="background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff; border: none;">
+    <div style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">📋 今日话题</div>
+    <div class="topic-en" style="color: #fff; font-size: 20px;" id="dailyTopic">Describe a memorable trip you have taken.</div>
+    <div class="topic-zh" style="color: rgba(255,255,255,0.7);" id="dailyTopicZh">描述一次难忘的旅行</div>
+    <div style="margin-top: 12px; display: flex; gap: 8px;">
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;" onclick="switchTab('practice'); selectTopic('daily')">🎤 立即练习</button>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;" onclick="speakTopic('daily')">🔊 听示范</button>
+    </div>
+    <div class="progress-bar" style="background:rgba(255,255,255,0.2);">
+      <div class="progress-fill" style="background:#fff;width:0%;" id="dailyProgress"></div>
+    </div>
+    <div style="font-size:11px;margin-top:4px;opacity:0.7;">今日完成度 0%</div>
+  </div>
+
+  <div class="segmented" id="homePartFilter">
+    <button class="active" onclick="filterHomePart('all', this)">全部</button>
+    <button onclick="filterHomePart('part1', this)">Part 1</button>
+    <button onclick="filterHomePart('part2', this)">Part 2</button>
+    <button onclick="filterHomePart('part3', this)">Part 3</button>
+  </div>
+
+  <div class="scroll-area" id="homeTopicList"></div>
+</div>
+
+<!-- ====== PAGE 1: 练习 ====== -->
+<div class="page" id="page-practice">
+  <div id="practiceContent">
+    <div class="empty">
+      <div class="icon">🎯</div>
+      <p>选择一个话题开始练习</p>
+      <p style="font-size:12px;">点击下方话题或从首页选择</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PAGE 2: 话题库 ====== -->
+<div class="page" id="page-topics">
+  <div class="segmented" id="topicPartFilter">
+    <button class="active" onclick="filterTopics('all', this)">全部</button>
+    <button onclick="filterTopics('part1', this)">Part 1</button>
+    <button onclick="filterTopics('part2', this)">Part 2</button>
+    <button onclick="filterTopics('part3', this)">Part 3</button>
+  </div>
+  <div class="scroll-area" id="topicList" style="max-height:70vh;"></div>
+</div>
+
+<!-- ====== PAGE 3: 连读技巧 ====== -->
+<div class="page" id="page-liaison">
+  <div class="segmented" id="liaisonFilter">
+    <button class="active" onclick="filterLiaison('all', this)">全部</button>
+    <button onclick="filterLiaison('cv', this)">C+V 连读</button>
+    <button onclick="filterLiaison('rlink', this)">R 连读</button>
+    <button onclick="filterLiaison('intrusion', this)">插入音</button>
+    <button onclick="filterLiaison('flap', this)">弹舌 T</button>
+    <button onclick="filterLiaison('elision', this)">省音</button>
+  </div>
+  <div class="scroll-area" id="liaisonList" style="max-height:65vh;"></div>
+</div>
+
+<!-- ====== PAGE 4: 短语库 ====== -->
+<div class="page" id="page-phrases">
+  <div class="segmented" id="phraseFilter">
+    <button class="active" onclick="filterPhrases('all', this)">全部</button>
+    <button onclick="filterPhrases('open', this)">开场/引入</button>
+    <button onclick="filterPhrases('opinion', this)">表达观点</button>
+    <button onclick="filterPhrases('explain', this)">解释举例</button>
+    <button onclick="filterPhrases('hedge', this)">缓和语气</button>
+    <button onclick="filterPhrases('close', this)">结尾总结</button>
+  </div>
+  <div class="scroll-area" id="phraseList" style="max-height:65vh;"></div>
+</div>
+
+<!-- Bottom Tab Bar -->
+<div class="tab-bar">
+  <button class="tab-item active" data-page="home" onclick="switchTab('home')">
+    <span class="icon">🏠</span> 首页
+  </button>
+  <button class="tab-item" data-page="practice" onclick="switchTab('practice')">
+    <span class="icon">🎤</span> 练习
+  </button>
+  <button class="tab-item" data-page="topics" onclick="switchTab('topics')">
+    <span class="icon">📚</span> 话题库
+  </button>
+  <button class="tab-item" data-page="liaison" onclick="switchTab('liaison')">
+    <span class="icon">🔗</span> 连读
+  </button>
+  <button class="tab-item" data-page="phrases" onclick="switchTab('phrases')">
+    <span class="icon">💬</span> 短语
+  </button>
+</div>
+
+<script>
+// ==================== DATA ====================
+const topics = [
+  // Part 1
+  { id: 'p1_1', part: 'part1', en: 'Do you work or are you a student?', zh: '你是在工作还是上学？', prompts: ['What do you like about your job/studies?', 'What are your future plans?'], sample: "I'm currently a student, majoring in Computer Science. I really enjoy it because it's a field that's constantly evolving. In the future, I'd like to work as a software developer." },
+  { id: 'p1_2', part: 'part1', en: 'What do you do in your free time?', zh: '你在空闲时间做什么？', prompts: ['How often do you do it?', 'Who do you do it with?'], sample: "In my free time, I'm really into photography. I try to go out and take photos at least once a week, usually on weekends. Sometimes I go alone, but occasionally I join a local photography club." },
+  { id: 'p1_3', part: 'part1', en: 'Tell me about your hometown.', zh: '介绍一下你的家乡', prompts: ['What is it known for?', 'Has it changed much?'], sample: "I come from a mid-sized city called Hangzhou. It's well-known for West Lake and its tea culture. Over the past decade, it has changed dramatically — there are many more high-rise buildings and the metro system has expanded significantly." },
+  { id: 'p1_4', part: 'part1', en: 'Do you like cooking?', zh: '你喜欢做饭吗？', prompts: ['Who taught you to cook?', 'What do you like to cook?'], sample: "To be honest, I'm not much of a cook. I can make a few simple dishes, but nothing fancy. My mother taught me the basics when I was younger. I can make a decent stir-fry, but that's about it." },
+  { id: 'p1_5', part: 'part1', en: 'How often do you use social media?', zh: '你多久用一次社交媒体？', prompts: ['Which platforms?', 'What do you use it for?'], sample: "I'd say I check social media several times a day, mainly WeChat and Douyin. I use it to stay in touch with friends and keep up with the news. But I try to limit my screen time because it can be quite addictive." },
+  { id: 'p1_6', part: 'part1', en: 'Do you prefer tea or coffee?', zh: '你喜欢茶还是咖啡？', prompts: ['When do you drink it?', 'Is it popular in your country?'], sample: "I definitely prefer tea over coffee. As a Chinese person, tea is deeply rooted in our culture. I usually have a cup of green tea in the morning, and sometimes jasmine tea in the afternoon. It's incredibly popular here." },
+  { id: 'p1_7', part: 'part1', en: 'What kind of music do you listen to?', zh: '你喜欢听什么类型的音乐？', prompts: ['When do you listen?', 'Has your taste changed?'], sample: "My music taste is pretty eclectic. I listen to everything from pop to classical, depending on my mood. When I'm working out, I prefer upbeat pop songs, but when I'm studying, I tend to go for instrumental music." },
+  { id: 'p1_8', part: 'part1', en: 'Do you like traveling?', zh: '你喜欢旅游吗？', prompts: ['Where have you been?', 'Where would you like to go?'], sample: "Absolutely, I love traveling. I've been to several countries in Southeast Asia, and each trip has been eye-opening. Next on my bucket list is Japan — I've always been fascinated by the culture and the food." },
+
+  // Part 2
+  { id: 'p2_1', part: 'part2', en: 'Describe a memorable trip you have taken.', zh: '描述一次难忘的旅行', prompts: ['Where you went', 'Who you went with', 'What you did there', 'And explain why it was memorable'], sample: "I'd like to talk about a trip I took to Yunnan two years ago. I went with three close friends, and we spent about a week exploring. We visited Lijiang Old Town, hiked through Tiger Leaping Gorge, and tried all kinds of local food. What made it truly memorable was the unexpected kindness of the locals — one family invited us into their home for a meal. It reminded me that travel is really about the connections you make, not just the sights you see." },
+  { id: 'p2_2', part: 'part2', en: 'Describe a person who has influenced you greatly.', zh: '描述一个对你有很大影响的人', prompts: ['Who this person is', 'How you know this person', 'What they did', 'And explain how they influenced you'], sample: "The person who has influenced me most is my high school English teacher, Ms. Wang. I met her when I was 15, and at that time I was quite shy and lacked confidence. She noticed my interest in English and encouraged me to join the school's English speech competition. Even though I was terrified, she coached me patiently. I ended up winning third place, and it completely changed my self-image. She taught me that a good teacher doesn't just teach — they inspire." },
+  { id: 'p2_3', part: 'part2', en: 'Describe a skill you would like to learn in the future.', zh: '描述一个你未来想学的技能', prompts: ['What the skill is', 'Why you want to learn it', 'How you plan to learn it', 'And explain how it would benefit you'], sample: "A skill I'd really love to learn is playing the piano. I've always been drawn to music, and the piano seems like such a versatile instrument. I'm planning to start with online courses and then maybe find a private tutor once I've got the basics down. I think learning an instrument would not only be a great creative outlet but also a wonderful way to relieve stress after a long day at work." },
+  { id: 'p2_4', part: 'part2', en: 'Describe a book that you enjoyed reading.', zh: '描述一本你喜欢读的书', prompts: ['What the book is', 'What it is about', 'When you read it', 'And explain why you enjoyed it'], sample: "A book that left a deep impression on me is 'Sapiens' by Yuval Noah Harari. It's a non-fiction book that traces the history of humankind from the Stone Age to the present. I read it during my summer break last year. What I found fascinating was how it challenged many assumptions I had about civilization — it made me think about things from a completely different perspective. The author has a gift for making complex ideas accessible." },
+  { id: 'p2_5', part: 'part2', en: 'Describe a time when you helped someone.', zh: '描述一次你帮助别人的经历', prompts: ['Who you helped', 'What the situation was', 'How you helped', 'And explain how you felt about it'], sample: "A few months ago, I helped a new colleague settle into our company. She had just moved to the city and didn't know anyone. I showed her around the office, explained our workflow, and even helped her find an apartment. I also introduced her to some of my friends so she could build a social circle. I felt genuinely happy seeing her gradually become more comfortable. It reminded me that small acts of kindness can make a huge difference." },
+  { id: 'p2_6', part: 'part2', en: 'Describe an important festival in your country.', zh: '描述一个你国家的重要节日', prompts: ['What the festival is', 'When it takes place', 'How people celebrate it', 'And explain why it is important'], sample: "I'd like to talk about the Spring Festival, or Chinese New Year. It usually falls in late January or early February. Families gather for a big reunion dinner on New Year's Eve, and children receive red envelopes with money. We also set off fireworks and decorate our homes with red couplets. It's incredibly important because it's the one time of year when the whole family comes together, no matter how far apart they live." },
+
+  // Part 3
+  { id: 'p3_1', part: 'part3', en: 'How has tourism changed in your country in recent years?', zh: '近年来你国家的旅游业发生了怎样的变化？', prompts: ['Types of tourism', 'Impact of technology', 'Future trends'], sample: "Tourism in China has undergone a massive transformation. Firstly, domestic tourism has boomed, partly due to improved infrastructure like high-speed rail. Secondly, technology has reshaped how people travel — apps for booking, navigation, and reviews have made independent travel much easier. I think the trend will continue toward more personalized, experience-based travel rather than traditional group tours." },
+  { id: 'p3_2', part: 'part2', en: 'Describe a piece of technology you use every day.', zh: '描述一个你每天使用的科技产品', prompts: ['What it is', 'How you use it', 'What life would be like without it'], sample: "The piece of technology I use most is undoubtedly my smartphone. From the moment I wake up to when I go to bed, it's basically an extension of my hand. I use it for communication, navigation, payments, entertainment — pretty much everything. Without it, I think I'd feel quite disconnected. But at the same time, I sometimes wish I could be less dependent on it." },
+  { id: 'p3_3', part: 'part3', en: 'Do you think people today have a better work-life balance than in the past?', zh: '你觉得现代人的工作生活平衡比过去好吗？', prompts: ['Technology impact', 'Social expectations', 'Generational differences'], sample: "That's an interesting question. On one hand, technology has made work more flexible — many people can now work from home. But on the other hand, it has blurred the boundaries between work and personal life. People are often expected to respond to messages at all hours. I think the younger generation values work-life balance more than previous generations, but achieving it is still a challenge." },
+  { id: 'p3_4', part: 'part3', en: 'How important is it for children to learn to read at an early age?', zh: '儿童早期学会阅读有多重要？', prompts: ['Cognitive development', 'Social factors', 'Educational systems'], sample: "I believe early reading is absolutely crucial. It lays the foundation for all future learning. Children who read early tend to develop stronger cognitive skills and a richer vocabulary. Beyond academics, reading fosters imagination and empathy by exposing children to different perspectives. That said, I think we should be careful not to push children too hard — the focus should be on making reading enjoyable." },
+  { id: 'p3_5', part: 'part3', en: 'What are the advantages and disadvantages of living in a big city?', zh: '住在大城市的优缺点是什么？', prompts: ['Job opportunities', 'Cost of living', 'Quality of life'], sample: "Living in a big city is a double-edged sword. On the plus side, there are more job opportunities, better public services, and a vibrant cultural scene. However, the cost of living is sky-high, traffic is often terrible, and the air quality can be poor. Personally, I think the advantages outweigh the disadvantages when you're young, but as you get older, a quieter place might seem more appealing." },
+];
+
+const phrases = [
+  { cat: 'open', en: "Well, that's an interesting question…", zh: '嗯，这是个有趣的问题……' },
+  { cat: 'open', en: "I've never really thought about that before, but…", zh: '我之前没怎么想过这个问题，不过……' },
+  { cat: 'open', en: "Let me think about that for a moment.", zh: '让我想一下。' },
+  { cat: 'open', en: "That's a tough one, but I'll give it a shot.", zh: '这个问题有点难，不过我试试看。' },
+  { cat: 'open', en: "To be honest, I haven't considered this much, but…", zh: '说实话我没怎么考虑过这个，但……' },
+
+  { cat: 'opinion', en: "In my opinion, …", zh: '在我看来……' },
+  { cat: 'opinion', en: "From my perspective, …", zh: '从我的角度来看……' },
+  { cat: 'opinion', en: "I strongly believe that…", zh: '我坚信……' },
+  { cat: 'opinion', en: "I'm inclined to think that…", zh: '我倾向于认为……' },
+  { cat: 'opinion', en: "As far as I'm concerned, …", zh: '就我而言……' },
+  { cat: 'opinion', en: "It seems to me that…", zh: '我觉得……' },
+  { cat: 'opinion', en: "I would argue that…", zh: '我认为……（较正式）' },
+
+  { cat: 'explain', en: "For instance, …", zh: '举个例子……' },
+  { cat: 'explain', en: "A good example of this would be…", zh: '一个很好的例子是……' },
+  { cat: 'explain', en: "To put it another way, …", zh: '换句话说……' },
+  { cat: 'explain', en: "What I mean is that…", zh: '我的意思是……' },
+  { cat: 'explain', en: "In other words, …", zh: '换言之……' },
+  { cat: 'explain', en: "Let me elaborate on that.", zh: '让我详细说明一下。' },
+  { cat: 'explain', en: "To give you a specific example, …", zh: '给你一个具体的例子……' },
+
+  { cat: 'hedge', en: "To some extent, …", zh: '在某种程度上……' },
+  { cat: 'hedge', en: "It depends on the situation.", zh: '这要看具体情况。' },
+  { cat: 'hedge', en: "I'm not an expert, but I think…", zh: '我不是专家，但我觉得……' },
+  { cat: 'hedge', en: "That's not always the case, though.", zh: '不过也不总是这样。' },
+  { cat: 'hedge', en: "Generally speaking, …", zh: '一般来说……' },
+  { cat: 'hedge', en: "On the whole, …", zh: '总体而言……' },
+
+  { cat: 'close', en: "So, to sum up, …", zh: '总结一下……' },
+  { cat: 'close', en: "All in all, …", zh: '总的来说……' },
+  { cat: 'close', en: "That's pretty much all I have to say about that.", zh: '关于这个我差不多就说这些。' },
+  { cat: 'close', en: "In conclusion, …", zh: '最后，……' },
+  { cat: 'close', en: "To wrap up, I'd say that…", zh: '总的来说，我觉得……' },
+];
+
+const liaisonData = [
+  // C+V 辅音+元音连读
+  { cat: 'cv', rule: '辅音 + 元音 → 拼读', en: 'look at', linked: 'loo-kat', zh: '看……', tip: '辅音 /k/ 直接连到元音 /æ/，读作 loo-kat' },
+  { cat: 'cv', rule: '辅音 + 元音 → 拼读', en: 'an apple', linked: 'a-napple', zh: '一个苹果', tip: '/n/ 连到 /æ/，读作 a-napple' },
+  { cat: 'cv', rule: '辅音 + 元音 → 拼读', en: 'not at all', linked: 'no-ta-tall', zh: '一点也不', tip: '三个词连起来读，听起来像一个词' },
+  { cat: 'cv', rule: '辅音 + 元音 → 拼读', en: 'in an hour', linked: 'i-na-nour', zh: '一小时后', tip: '/n/ 两次连读，H不发音' },
+  { cat: 'cv', rule: '辅音 + 元音 → 拼读', en: 'pick it up', linked: 'pi-ki-tup', zh: '捡起来', tip: '/k/ 连 /ɪ/，/t/ 连 /ʌ/' },
+  { cat: 'cv', rule: '辅音 + 元音 → 拼读', en: 'a lot of', linked: 'a-lo-tov', zh: '很多', tip: '/t/ 连 /ə/，听起来像 a-lo-tov' },
+  { cat: 'cv', rule: '辅音 + 元音 → 拼读', en: 'first of all', linked: 'firs-to-fall', zh: '首先', tip: '/t/ 连 /ə/，日常口语极常见' },
+
+  // R 连读
+  { cat: 'rlink', rule: 'R 连读', en: 'far away', linked: 'fa-raway', zh: '遥远', tip: '英式不发音的 r 在元音前发音，fa-raway' },
+  { cat: 'rlink', rule: 'R 连读', en: 'there is', linked: 'the-ris', zh: '有', tip: 'r + 元音 /ɪ/，读作 the-ris' },
+  { cat: 'rlink', rule: 'R 连读', en: 'for ever', linked: 'fo-rever', zh: '永远', tip: 'r + /e/，听起来像 forever' },
+  { cat: 'rlink', rule: 'R 连读', en: 'more or less', linked: 'mo-ror-less', zh: '或多或少', tip: '两次 r 连读' },
+  { cat: 'rlink', rule: 'R 连读', en: 'better off', linked: 'bet-te-roff', zh: '更好', tip: 'r 在两个元音之间自然发音' },
+
+  // 插入音
+  { cat: 'intrusion', rule: '插入音 /w/ 或 /j/', en: 'go on', linked: 'go-won', zh: '继续', tip: '两个元音间插入 /w/，go-won' },
+  { cat: 'intrusion', rule: '插入音 /w/ 或 /j/', en: 'do it', linked: 'do-wit', zh: '做吧', tip: '/u:/ 后加 /w/' },
+  { cat: 'intrusion', rule: '插入音 /w/ 或 /j/', en: 'I am', linked: 'I-yam', zh: '我是', tip: '/aɪ/ 后加 /j/，读作 I-yam' },
+  { cat: 'intrusion', rule: '插入音 /w/ 或 /j/', en: 'see it', linked: 'see-yit', zh: '看见它', tip: '/i:/ 后加 /j/' },
+  { cat: 'intrusion', rule: '插入音 /w/ 或 /j/', en: 'how about', linked: 'how-wabout', zh: '怎么样', tip: '/aʊ/ 后加 /w/' },
+  { cat: 'intrusion', rule: '插入音 /w/ 或 /j/', en: 'three apples', linked: 'three-yapples', zh: '三个苹果', tip: '/i:/ 后加 /j/' },
+
+  // 弹舌 T（美式）
+  { cat: 'flap', rule: '弹舌 T / 闪音', en: 'water', linked: 'wadder', zh: '水', tip: 't 在元音间发 /d/ 音，wadder' },
+  { cat: 'flap', rule: '弹舌 T / 闪音', en: 'better', linked: 'bedder', zh: '更好', tip: '美音 /t/ → /d/，bedder' },
+  { cat: 'flap', rule: '弹舌 T / 闪音', en: 'city', linked: 'ciddy', zh: '城市', tip: 't 弹舌，ciddy' },
+  { cat: 'flap', rule: '弹舌 T / 闪音', en: 'pretty good', linked: 'priddy good', zh: '挺好的', tip: '/t/ 在两个元音间，弹舌变成软 d' },
+  { cat: 'flap', rule: '弹舌 T / 闪音', en: 'a lot of', linked: 'a loddof', zh: '很多', tip: 't 弹舌 + 连读，一起发生' },
+
+  // 省音
+  { cat: 'elision', rule: '省音 / 省略', en: 'next day', linked: 'nex-day', zh: '第二天', tip: '/t/ 在两个辅音间省略' },
+  { cat: 'elision', rule: '省音 / 省略', en: 'must be', linked: 'mus-be', zh: '一定是', tip: '/t/ 省略，mus-be' },
+  { cat: 'elision', rule: '省音 / 省略', en: 'last night', linked: 'las-night', zh: '昨晚', tip: '/t/ 在两个辅音间省略' },
+  { cat: 'elision', rule: '省音 / 省略', en: 'old friend', linked: 'ol-friend', zh: '老朋友', tip: '/d/ 在辅音前省略' },
+  { cat: 'elision', rule: '省音 / 省略', en: "don't know", linked: 'dunno', zh: '不知道', tip: '极常见口语省略，直接读 dunno' },
+  { cat: 'elision', rule: '省音 / 省略', en: 'going to', linked: 'gonna', zh: '将要', tip: '口语简化，雅思口语适当使用' },
+  { cat: 'elision', rule: '省音 / 省略', en: 'want to', linked: 'wanna', zh: '想要', tip: '口语简化，want to → wanna' },
+];
+
+// ==================== STATE ====================
+let currentPage = 'home';
+let currentTopic = null;
+let homePartFilter = 'all';
+let topicPartFilter = 'all';
+let phraseFilterCat = 'all';
+let liaisonFilterCat = 'all';
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRunning = false;
+let recognition = null;
+let isRecognizing = false;
+let practiceCount = 0;
+let practiceMinutes = 0;
+let practicedTopicIds = new Set();
+
+// Daily topic rotates based on date
+const dailyTopicIndex = new Date().getDate() % topics.filter(t => t.part === 'part2').length;
+const part2Topics = topics.filter(t => t.part === 'part2');
+const dailyTopicData = part2Topics[dailyTopicIndex];
+
+// ==================== INIT ====================
+function init() {
+  document.getElementById('dailyTopic').textContent = dailyTopicData.en;
+  document.getElementById('dailyTopicZh').textContent = dailyTopicData.zh;
+  loadStats();
+  renderHomeTopics();
+  renderTopicList();
+  renderPhrases();
+  renderLiaison();
+  updateDailyProgress();
+}
+
+function filterLiaison(cat, el) {
+  liaisonFilterCat = cat;
+  document.querySelectorAll('#liaisonFilter button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderLiaison();
+}
+
+function renderLiaison() {
+  const filtered = liaisonFilterCat === 'all'
+    ? liaisonData
+    : liaisonData.filter(d => d.cat === liaisonFilterCat);
+  const catNames = { cv: 'C+V 连读', rlink: 'R 连读', intrusion: '插入音', flap: '弹舌 T', elision: '省音' };
+  const container = document.getElementById('liaisonList');
+  if (!container) return;
+
+  if (liaisonFilterCat === 'all') {
+    const grouped = {};
+    filtered.forEach(d => {
+      if (!grouped[d.cat]) grouped[d.cat] = [];
+      grouped[d.cat].push(d);
+    });
+    const order = ['cv', 'rlink', 'intrusion', 'flap', 'elision'];
+    const emoji = { cv: '🔤', rlink: '🔁', intrusion: '➕', flap: '💫', elision: '✂️' };
+    container.innerHTML = order.filter(c => grouped[c]).map(cat => `
+      <div class="liaison-section-title">${emoji[cat]} ${catNames[cat]}</div>
+      ${grouped[cat].map(d => renderLiaisonCard(d)).join('')}
+    `).join('');
+  } else {
+    container.innerHTML = filtered.map(d => renderLiaisonCard(d)).join('');
+  }
+}
+
+function renderLiaisonCard(d) {
+  const escaped = d.en.replace(/'/g, '&#39;');
+  return `
+    <div class="liaison-card">
+      <div class="liaison-rule">📐 ${d.rule}</div>
+      <div class="liaison-row">
+        <span class="liaison-normal">${d.en}</span>
+        <span class="liaison-arrow">→</span>
+        <span class="liaison-linked">${d.linked}</span>
+      </div>
+      <div class="liaison-zh">${d.zh}</div>
+      <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:11px;color:var(--text-secondary);">💡 ${d.tip}</span>
+        <button class="liaison-play" onclick="event.stopPropagation();speakText('${escaped}')">🔊 原读</button>
+      </div>
+    </div>
+  `;
+}
+
+function loadStats() {
+  const saved = JSON.parse(localStorage.getItem('ielts_speaking_stats') || '{}');
+  practiceCount = saved.count || 0;
+  practiceMinutes = saved.minutes || 0;
+  practicedTopicIds = new Set(saved.topicIds || []);
+  document.getElementById('statPracticed').textContent = practiceCount;
+  document.getElementById('statMinutes').textContent = practiceMinutes;
+  document.getElementById('statTopics').textContent = practicedTopicIds.size;
+  document.getElementById('streakBadge').textContent = '🔥 今日练习: ' + practiceCount;
+}
+
+function saveStats() {
+  localStorage.setItem('ielts_speaking_stats', JSON.stringify({
+    count: practiceCount,
+    minutes: practiceMinutes,
+    topicIds: [...practicedTopicIds],
+    lastDate: new Date().toDateString()
+  }));
+  loadStats();
+}
+
+function updateDailyProgress() {
+  const pct = practicedTopicIds.has(dailyTopicData.id) ? 100 : 0;
+  document.getElementById('dailyProgress').style.width = pct + '%';
+  document.getElementById('dailyProgress').parentElement.nextElementSibling.textContent = '今日完成度 ' + pct + '%';
+}
+
+// ==================== NAVIGATION ====================
+function switchTab(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelector('.tab-item[data-page="' + page + '"]').classList.add('active');
+
+  if (page === 'topics') renderTopicList();
+  if (page === 'home') { renderHomeTopics(); updateDailyProgress(); }
+  if (page === 'phrases') renderPhrases();
+  if (page === 'liaison') renderLiaison();
+}
+
+// ==================== HOME TOPICS ====================
+function filterHomePart(part, el) {
+  homePartFilter = part;
+  document.querySelectorAll('#homePartFilter button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderHomeTopics();
+}
+
+function renderHomeTopics() {
+  const list = document.getElementById('homeTopicList');
+  let filtered = homePartFilter === 'all' ? topics : topics.filter(t => t.part === homePartFilter);
+  list.innerHTML = filtered.map(t => `
+    <div class="card" style="padding:14px 16px;" onclick="selectTopic('${t.id}')">
+      <div class="card-header" style="margin-bottom:6px;">
+        <span class="tag tag-${t.part}">${t.part.toUpperCase()}</span>
+        ${practicedTopicIds.has(t.id) ? '<span style="font-size:12px;color:var(--success);">✓ 已练习</span>' : ''}
+      </div>
+      <div class="topic-en" style="font-size:15px;">${t.en}</div>
+      <div class="topic-zh" style="margin-bottom:0;">${t.zh}</div>
+    </div>
+  `).join('');
+}
+
+// ==================== TOPIC LIST ====================
+function filterTopics(part, el) {
+  topicPartFilter = part;
+  document.querySelectorAll('#topicPartFilter button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTopicList();
+}
+
+function renderTopicList() {
+  const list = document.getElementById('topicList');
+  let filtered = topicPartFilter === 'all' ? topics : topics.filter(t => t.part === topicPartFilter);
+  list.innerHTML = filtered.map(t => `
+    <div class="card" style="padding:14px 16px;" onclick="selectTopic('${t.id}')">
+      <div class="card-header" style="margin-bottom:6px;">
+        <span class="tag tag-${t.part}">${t.part.toUpperCase()}</span>
+        ${practicedTopicIds.has(t.id) ? '<span style="font-size:12px;color:var(--success);">✓ 已练习</span>' : ''}
+      </div>
+      <div class="topic-en" style="font-size:15px;">${t.en}</div>
+      <div class="topic-zh" style="margin-bottom:4px;">${t.zh}</div>
+      ${t.prompts ? `<ul class="topic-prompts">${t.prompts.map(p => '<li>' + p + '</li>').join('')}</ul>` : ''}
+    </div>
+  `).join('');
+}
+
+// ==================== SELECT TOPIC -> PRACTICE ====================
+function selectTopic(topicId) {
+  let t;
+  if (topicId === 'daily') {
+    t = dailyTopicData;
+  } else {
+    t = topics.find(x => x.id === topicId);
+    if (!t) return;
+  }
+  currentTopic = t;
+  switchTab('practice');
+  renderPractice();
+}
+
+function renderPractice() {
+  if (!currentTopic) {
+    document.getElementById('practiceContent').innerHTML = `
+      <div class="empty"><div class="icon">🎯</div><p>选择一个话题开始练习</p></div>`;
+    return;
+  }
+  const t = currentTopic;
+  const isPart2 = t.part === 'part2';
+  const prepTime = isPart2 ? 60 : 15;
+  const speakTime = isPart2 ? 120 : 45;
+
+  document.getElementById('practiceContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <span class="tag tag-${t.part}">${t.part.toUpperCase()}</span>
+        <button class="btn btn-outline btn-sm" onclick="selectTopic(null)" style="font-size:11px;">换话题</button>
+      </div>
+      <div class="topic-en" style="font-size:18px;">${t.en}</div>
+      <div class="topic-zh">${t.zh}</div>
+      ${t.prompts ? `<ul class="topic-prompts">${t.prompts.map(p => '<li>' + p + '</li>').join('')}</ul>` : ''}
+    </div>
+
+    <!-- Timer -->
+    <div class="card" style="text-align:center;">
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">
+        ${isPart2 ? '⏱ 准备 1分钟 + 回答 1-2分钟' : '⏱ 回答 30-45秒'}
+      </div>
+      <div class="timer-display" id="timerDisplay">${formatTime(isPart2 ? prepTime : speakTime)}</div>
+      <div class="timer-label" id="timerPhase">${isPart2 ? '准备阶段' : '回答阶段'}</div>
+      <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btnStart" onclick="startTimer()">▶ 开始计时</button>
+        <button class="btn btn-warning" id="btnPause" onclick="pauseTimer()" style="display:none;">⏸ 暂停</button>
+        <button class="btn btn-outline" id="btnReset" onclick="resetTimer()">↺ 重置</button>
+      </div>
+    </div>
+
+    <!-- Speech Recognition -->
+    <div class="card" style="text-align:center;">
+      <div style="font-size:14px;font-weight:600;margin-bottom:8px;">🎙 语音识别练习</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">点击按钮后开始说英语，系统会实时转写</div>
+      <div id="recordingIndicator" style="display:none;">
+        <div class="recording-indicator"><span class="dot">🎙</span></div>
+        <div style="text-align:center;font-size:13px;color:var(--danger);font-weight:600;">正在录音中…</div>
+      </div>
+      <button class="btn btn-danger btn-block" id="btnRecord" onclick="toggleRecording()">🔴 开始录音</button>
+      <div class="speech-result" id="speechResult">你的语音内容将显示在这里…</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-top:4px;">
+        <span id="wordCount"></span>
+        <span>提示：微信浏览器可能不支持语音识别</span>
+      </div>
+    </div>
+
+    <!-- Sample Answer -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📖 示范回答</span>
+        <button class="btn btn-sm btn-outline" onclick="speakSample()">🔊 朗读</button>
+      </div>
+      <p style="font-size:14px;line-height:1.8;">${t.sample || '暂无示范回答'}</p>
+    </div>
+
+    <!-- Mark done -->
+    <button class="btn btn-success btn-block" onclick="markDone()" style="margin-bottom:20px;">
+      ✅ 标记为已完成
+    </button>
+  `;
+
+  // Init speech recognition
+  initSpeechRecognition();
+}
+
+// ==================== TIMER ====================
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  if (timerSeconds === 0) {
+    const isPart2 = currentTopic && currentTopic.part === 'part2';
+    timerSeconds = isPart2 ? 60 : 15; // Prep for part2, or speak for part1/3
+    document.getElementById('timerPhase').textContent = isPart2 ? '准备阶段' : '回答阶段';
+  }
+  timerRunning = true;
+  document.getElementById('btnStart').style.display = 'none';
+  document.getElementById('btnPause').style.display = '';
+  timerInterval = setInterval(tick, 1000);
+}
+
+function tick() {
+  if (timerSeconds <= 0) {
+    const isPart2 = currentTopic && currentTopic.part === 'part2';
+    const phaseEl = document.getElementById('timerPhase');
+    if (isPart2 && phaseEl.textContent === '准备阶段') {
+      timerSeconds = 120;
+      phaseEl.textContent = '回答阶段';
+      updateTimerDisplay();
+      document.getElementById('timerDisplay').classList.remove('warning', 'danger');
+      showToast('准备时间到！开始回答吧');
+    } else {
+      timerSeconds = 0;
+      updateTimerDisplay();
+      pauseTimer();
+      document.getElementById('timerDisplay').classList.add('danger');
+      showToast('时间到！');
+      return;
+    }
+  } else {
+    timerSeconds--;
+    updateTimerDisplay();
+  }
+  if (timerSeconds <= 10 && timerSeconds > 5) {
+    document.getElementById('timerDisplay').classList.add('warning');
+    document.getElementById('timerDisplay').classList.remove('danger');
+  } else if (timerSeconds <= 5 && timerSeconds > 0) {
+    document.getElementById('timerDisplay').classList.remove('warning');
+    document.getElementById('timerDisplay').classList.add('danger');
+  } else {
+    document.getElementById('timerDisplay').classList.remove('warning', 'danger');
+  }
+}
+
+function updateTimerDisplay() {
+  document.getElementById('timerDisplay').textContent = formatTime(timerSeconds);
+}
+
+function pauseTimer() {
+  timerRunning = false;
+  clearInterval(timerInterval);
+  document.getElementById('btnStart').style.display = '';
+  document.getElementById('btnPause').style.display = 'none';
+}
+
+function resetTimer() {
+  pauseTimer();
+  const isPart2 = currentTopic && currentTopic.part === 'part2';
+  timerSeconds = isPart2 ? 60 : 15;
+  document.getElementById('timerPhase').textContent = isPart2 ? '准备阶段' : '回答阶段';
+  updateTimerDisplay();
+  document.getElementById('timerDisplay').classList.remove('warning', 'danger');
+}
+
+// ==================== SPEECH RECOGNITION ====================
+function initSpeechRecognition() {
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('btnRecord').textContent = '⚠ 浏览器不支持语音识别';
+    document.getElementById('btnRecord').disabled = true;
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = function(event) {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    document.getElementById('speechResult').textContent = transcript || '（正在聆听……）';
+    document.getElementById('speechResult').classList.add('active');
+  };
+
+  recognition.onerror = function(event) {
+    if (event.error === 'not-allowed') {
+      showToast('请允许使用麦克风权限');
+    }
+    if (event.error !== 'aborted') {
+      stopRecordingUI();
+    }
+  };
+
+  recognition.onend = function() {
+    if (isRecognizing) {
+      // Auto restart for continuous
+      try { recognition.start(); } catch(e) {}
+    }
+  };
+}
+
+function toggleRecording() {
+  if (!recognition) {
+    showToast('浏览器不支持语音识别，请用系统浏览器打开');
+    return;
+  }
+  if (isRecognizing) {
+    stopRecordingUI();
+  } else {
+    startRecordingUI();
+  }
+}
+
+function startRecordingUI() {
+  isRecognizing = true;
+  try { recognition.start(); } catch(e) {}
+  const btn = document.getElementById('btnRecord');
+  btn.textContent = '⏹ 停止录音';
+  btn.className = 'btn btn-block';
+  btn.style.background = '#DC2626';
+  btn.style.color = '#fff';
+  document.getElementById('speechResult').textContent = '（正在聆听……）';
+  document.getElementById('speechResult').classList.add('active');
+  document.getElementById('wordCount').textContent = '';
+  const indicator = document.getElementById('recordingIndicator');
+  if (indicator) indicator.style.display = 'block';
+}
+
+function stopRecordingUI() {
+  isRecognizing = false;
+  try { recognition.stop(); } catch(e) {}
+  const btn = document.getElementById('btnRecord');
+  btn.textContent = '🔴 开始录音';
+  btn.className = 'btn btn-danger btn-block';
+  document.getElementById('speechResult').classList.remove('active');
+  const text = document.getElementById('speechResult').textContent;
+  if (!text || text === '（正在聆听……）') {
+    document.getElementById('speechResult').textContent = '你的语音内容将显示在这里…';
+  }
+  const indicator = document.getElementById('recordingIndicator');
+  if (indicator) indicator.style.display = 'none';
+  // Count words
+  const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+  const wcEl = document.getElementById('wordCount');
+  if (wcEl && words > 0) wcEl.textContent = '词数: ' + words;
+}
+
+// ==================== TTS ====================
+function speakSample() {
+  if (!currentTopic || !currentTopic.sample) return;
+  speakText(currentTopic.sample);
+}
+
+function speakTopic(type) {
+  const t = type === 'daily' ? dailyTopicData : currentTopic;
+  if (!t) return;
+  speakText(t.en);
+}
+
+function speakText(text) {
+  const decoded = text.replace(/&#39;/g, "'");
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(decoded);
+    u.lang = 'en-US';
+    u.rate = 0.85;
+    u.pitch = 1;
+    // Try to get a good English voice
+    const voices = window.speechSynthesis.getVoices();
+    const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google'))
+      || voices.find(v => v.lang.startsWith('en-US'))
+      || voices.find(v => v.lang.startsWith('en'));
+    if (enVoice) u.voice = enVoice;
+    window.speechSynthesis.speak(u);
+    showToast('🔊 正在朗读…');
+  } else {
+    showToast('浏览器不支持语音朗读');
+  }
+}
+
+// Preload voices
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+}
+
+// ==================== MARK DONE ====================
+function markDone() {
+  if (!currentTopic) return;
+  if (!practicedTopicIds.has(currentTopic.id)) {
+    practicedTopicIds.add(currentTopic.id);
+    practiceCount++;
+  }
+  // Estimate practice minutes based on timer
+  const isPart2 = currentTopic.part === 'part2';
+  const estimatedMin = isPart2 ? 3 : 1;
+  practiceMinutes += estimatedMin;
+  saveStats();
+  updateDailyProgress();
+  showToast('✅ 已标记完成！继续加油！');
+
+  // Refresh practice page to show ✓
+  renderPractice();
+}
+
+// ==================== PHRASES ====================
+function filterPhrases(cat, el) {
+  phraseFilterCat = cat;
+  document.querySelectorAll('#phraseFilter button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderPhrases();
+}
+
+function renderPhrases() {
+  const list = document.getElementById('phraseList');
+  let filtered = phraseFilterCat === 'all' ? phrases : phrases.filter(p => p.cat === phraseFilterCat);
+  const catNames = { open: '开场/引入', opinion: '表达观点', explain: '解释举例', hedge: '缓和语气', close: '结尾总结' };
+
+  if (phraseFilterCat === 'all') {
+    // Group by category
+    const grouped = {};
+    filtered.forEach(p => {
+      if (!grouped[p.cat]) grouped[p.cat] = [];
+      grouped[p.cat].push(p);
+    });
+    list.innerHTML = Object.keys(grouped).map(cat => `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px;padding:0 4px;">
+          📌 ${catNames[cat]}
+        </div>
+        ${grouped[cat].map(p => `
+          <div class="phrase-card">
+            <div class="phrase-en">${p.en}</div>
+            <div class="phrase-zh">${p.zh}</div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+  } else {
+    list.innerHTML = filtered.map(p => `
+      <div class="phrase-card">
+        <div class="phrase-en">${p.en}</div>
+        <div class="phrase-zh">${p.zh}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ==================== TOAST ====================
+let toastTimeout;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ==================== STARTUP ====================
+init();
+</script>
+</body>
+</html>
